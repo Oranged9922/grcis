@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using CircleCanvas;
@@ -19,10 +20,10 @@ namespace _082circles
     public static void InitParams (out string name, out int wid, out int hei, out string param, out string tooltip)
     {
       // {{
-      name    = "Josef Pelikán";
+      name    = "Lukáš Salak -> Mondrian Image Generator";
       wid     = 800;
       hei     = 520;
-      param   = "12";
+      param   = "42";
       tooltip = "<long> .. random seed";
       // }}
     }
@@ -32,86 +33,214 @@ namespace _082circles
     /// </summary>
     /// <param name="c">Canvas ready for your drawing.</param>
     /// <param name="param">Optional string parameter from the form.</param>
+    ///
+
+
+      class Rect
+    {
+      public int x0 { get; set; }
+      public int x1 { get; set; }
+      public int y0 { get; set; }
+      public int y1 { get; set; }
+    }
+
+      static void RecursiveMondrian(RandomJames rnd,Canvas c,Rect rect,int borderWidth, int depthOfRecursion, int maxDepth, int maxDots)
+    {
+      if (depthOfRecursion >= maxDepth)
+        goto FILL;
+      
+        int divisionLine;
+        Rect DivisionLine;
+        Rect Splitted1;
+        Rect Splitted2;
+      if (depthOfRecursion % 2 == 0)
+      {
+        // Vertical split
+        if (rect.x1 - rect.x0 <= borderWidth*4)
+          goto FILL;
+
+        divisionLine = rnd.RandomInteger(rect.x0 + borderWidth*2, rect.x1 - borderWidth*2);
+        DivisionLine = new Rect()
+        {
+          x0 = divisionLine - (borderWidth / 2),
+          x1 = divisionLine + (borderWidth / 2),
+          y0 = rect.y0,
+          y1 = rect.y1
+        };
+
+
+        Splitted1 = new Rect()
+        {
+          x0 = rect.x0,
+          x1 = DivisionLine.x0 - 1,
+          y0 = rect.y0,
+          y1 = rect.y1
+        };
+        Splitted2 = new Rect()
+        {
+          x0 = DivisionLine.x1 + 1,
+          x1 = rect.x1,
+          y0 = rect.y0,
+          y1 = rect.y1
+        };
+      }
+      else
+      {
+        // Horizontal split
+        if (rect.y1 - rect.y0 <= borderWidth*4)
+          goto FILL;
+        divisionLine = rnd.RandomInteger(rect.y0 + borderWidth*2, rect.y1 - borderWidth*2);
+        DivisionLine = new Rect()
+        {
+          x0 = rect.x0,
+          x1 = rect.x1,
+          y0 = divisionLine - (borderWidth / 2),
+          y1 = divisionLine + (borderWidth / 2)
+        };
+        Splitted1 = new Rect()
+        {
+          x0 = rect.x0,
+          x1 = rect.x1,
+          y0 = rect.y0,
+          y1 = DivisionLine.y0 - 1
+        };
+        Splitted2 = new Rect()
+        {
+          x0 = rect.x0,
+          x1 = rect.x1,
+          y0 = DivisionLine.y1 + 1,
+          y1 = rect.y1
+        };
+      }
+      // Filling Division line
+      for (int i = 0; i < maxDots; i++)
+      {
+
+        int x = rnd.RandomInteger(DivisionLine.x0, DivisionLine.x1);
+        int y = rnd.RandomInteger(DivisionLine.y0, DivisionLine.y1);
+        c.SetColor(Color.Black);
+        c.FillDisc((float)x, (float)y, (float)rnd.RandomInteger(1, borderWidth/4));
+      }
+
+      RecursiveMondrian(rnd, c, Splitted1, borderWidth, depthOfRecursion + 1, maxDepth, maxDots);
+      RecursiveMondrian(rnd, c, Splitted2, borderWidth, depthOfRecursion + 1, maxDepth, maxDots);
+      return;
+
+FILL:
+
+        int area = (rect.x1-rect.x0)*(rect.y1-rect.y0);
+        var maxCircleRadius = Math.Sqrt((double)area/(Math.PI*Math.Log(area)*8));
+
+        //fill that rectangle with random color
+        List<Color> colors = new List<Color>(){Color.White,Color.White,Color.White,Color.Red,Color.Blue,Color.Yellow};
+        Color randomColor = colors[rnd.RandomInteger(0,colors.Count-1)];
+
+        for (int i = 0; i < maxDots; i++)
+        {
+
+          int x = rnd.RandomInteger(rect.x0, rect.x1);
+          int y = rnd.RandomInteger(rect.y0, rect.y1);
+          c.SetColor(randomColor);
+          c.FillDisc((float)x, (float)y, (float)rnd.RandomDouble((maxCircleRadius/2)*0.25, maxCircleRadius/2));
+        }
+      }
+
+
     public static void Draw (Canvas c, string param)
     {
-      // {{ TODO: put your drawing code here
+      int depthOfRecursion = 6;
+      int borderWidth = ((c.Height+c.Width)/(20*depthOfRecursion) == 0) ? 1 : (c.Height+c.Width)/(20*depthOfRecursion);
 
-      int wq = c.Width  / 4;
-      int hq = c.Height / 4;
-      int minq = Math.Min(wq, hq);
-      double t;
-      int i, j;
-      double x, y, r;
+      int numOfCircles = 1000;
       RandomJames rnd = new RandomJames();
-
-      c.Clear(Color.Black);
-
-      // Example of even simpler passing of a numeric value through string param.
       long seed;
       if (long.TryParse(param, NumberStyles.Number, CultureInfo.InvariantCulture, out seed))
         rnd.Reset(seed);
 
-      // 1st quadrant - anti-aliased disks in a spiral.
-      c.SetAntiAlias(true);
-      const int MAX_DISK = 30;
-      for (i = 0, t = 0.0; i < MAX_DISK; i++, t += 0.65)
-      {
-        r = 5.0 + i * (minq * 0.7 - 5.0) / MAX_DISK;
-        c.SetColor(Color.FromArgb(i * 255 / MAX_DISK, 255, 255 - i * 255 / MAX_DISK));
-        c.FillDisc((float)(wq + r * Math.Sin(t)), (float)(hq + r * Math.Cos(t)), (float)(r * 0.3));
-      }
+      // naming parameters like RandomJames.Reset(long ijkl), i love it :D
+      RecursiveMondrian(rnd, c, new Rect() { x0 = 0, x1 = c.Width, y0 = 0, y1 = c.Height }, borderWidth, 0, depthOfRecursion, numOfCircles);
 
-      // 2nd quadrant - anti-aliased random dots in a heart shape..
-      const int MAX_RND_DOTS = 1000;
-      double xx, yy, tmp;
 
-      for (i = 0; i < MAX_RND_DOTS; i++)
-      {
-        // This is called "Rejection Sampling"
-        do
-        {
-          x = rnd.RandomDouble(-1.5, 1.5);
-          y = rnd.RandomDouble(-1.0, 1.5);
-          xx = x * x;
-          yy = y * y;
-          tmp = xx + yy - 1.0;
-        } while (tmp * tmp * tmp - xx * yy * y > 0.0);
 
-        c.SetColor(Color.FromArgb(rnd.RandomInteger(200, 255),
-                                  rnd.RandomInteger(120, 220),
-                                  rnd.RandomInteger(120, 220)));
-        c.FillDisc(3.1f * wq + 0.8f * minq * (float)x,
-                   1.2f * hq - 0.8f * minq * (float)y,
-                   rnd.RandomFloat(1.0f, minq * 0.03f));
-      }
 
-      // 4th quadrant - CGG logo.
-      c.SetColor(COLORS[0]);
-      for (i = 0; i < DISC_DATA.Length / 3; i++)
-      {
-        x = DISC_DATA[i, 0];
-        y = DISC_DATA[i, 1];
-        r = DISC_DATA[i, 2];
-        if (i == FIRST_COLOR)
-          c.SetColor(COLORS[1]);
+      // {{ TODO: put your drawing code here
 
-        c.FillDisc(3.0f * wq + (float)((x - 85.0) * 0.018 * minq),
-                   3.0f * hq + (float)((y - 65.0) * 0.018 * minq),
-                   (float)(r * 0.018 * minq));
-      }
+      //  int wq = c.Width  / 4;
+      //  int hq = c.Height / 4;
+      //  int minq = Math.Min(wq, hq);
+      //  double t;
+      //  int i, j;
+      //  double x, y, r;
+      //  RandomJames rnd = new RandomJames();
 
-      // 3rd quadrant - disk grid.
-      const int DISKS = 12;
-      for (j = 0; j < DISKS; j++)
-        for (i = 0; i < DISKS; i++)
-        {
-          c.SetColor(((i ^ j) & 1) == 0 ? Color.White : Color.Blue);
-          c.FillDisc(wq + (i - DISKS / 2) * (wq * 1.8f / DISKS),
-                     3 * hq + (j - DISKS / 2) * (hq * 1.7f / DISKS),
-                     (((i ^ j) & 15) + 1.0f) / DISKS * minq * 0.08f);
-        }
+      //  c.Clear(Color.Black);
 
-      // }}
+      //  // Example of even simpler passing of a numeric value through string param.
+      //  long seed;
+      //  if (long.TryParse(param, NumberStyles.Number, CultureInfo.InvariantCulture, out seed))
+      //    rnd.Reset(seed);
+
+      //  // 1st quadrant - anti-aliased disks in a spiral.
+      //  c.SetAntiAlias(true);
+      //  const int MAX_DISK = 30;
+      //  for (i = 0, t = 0.0; i < MAX_DISK; i++, t += 0.65)
+      //  {
+      //    r = 5.0 + i * (minq * 0.7 - 5.0) / MAX_DISK;
+      //    c.SetColor(Color.FromArgb(i * 255 / MAX_DISK, 255, 255 - i * 255 / MAX_DISK));
+      //    c.FillDisc((float)(wq + r * Math.Sin(t)), (float)(hq + r * Math.Cos(t)), (float)(r * 0.3));
+      //  }
+
+      //  // 2nd quadrant - anti-aliased random dots in a heart shape..
+      //  const int MAX_RND_DOTS = 1000;
+      //  double xx, yy, tmp;
+
+      //  for (i = 0; i < MAX_RND_DOTS; i++)
+      //  {
+      //    // This is called "Rejection Sampling"
+      //    do
+      //    {
+      //      x = rnd.RandomDouble(-1.5, 1.5);
+      //      y = rnd.RandomDouble(-1.0, 1.5);
+      //      xx = x * x;
+      //      yy = y * y;
+      //      tmp = xx + yy - 1.0;
+      //    } while (tmp * tmp * tmp - xx * yy * y > 0.0);
+
+      //    c.SetColor(Color.FromArgb(rnd.RandomInteger(200, 255),
+      //                              rnd.RandomInteger(120, 220),
+      //                              rnd.RandomInteger(120, 220)));
+      //    c.FillDisc(3.1f * wq + 0.8f * minq * (float)x,
+      //               1.2f * hq - 0.8f * minq * (float)y,
+      //               rnd.RandomFloat(1.0f, minq * 0.03f));
+      //  }
+
+      //  // 4th quadrant - CGG logo.
+      //  c.SetColor(COLORS[0]);
+      //  for (i = 0; i < DISC_DATA.Length / 3; i++)
+      //  {
+      //    x = DISC_DATA[i, 0];
+      //    y = DISC_DATA[i, 1];
+      //    r = DISC_DATA[i, 2];
+      //    if (i == FIRST_COLOR)
+      //      c.SetColor(COLORS[1]);
+
+      //    c.FillDisc(3.0f * wq + (float)((x - 85.0) * 0.018 * minq),
+      //               3.0f * hq + (float)((y - 65.0) * 0.018 * minq),
+      //               (float)(r * 0.018 * minq));
+      //  }
+
+      //  // 3rd quadrant - disk grid.
+      //  const int DISKS = 12;
+      //  for (j = 0; j < DISKS; j++)
+      //    for (i = 0; i < DISKS; i++)
+      //    {
+      //      c.SetColor(((i ^ j) & 1) == 0 ? Color.White : Color.Blue);
+      //      c.FillDisc(wq + (i - DISKS / 2) * (wq * 1.8f / DISKS),
+      //                 3 * hq + (j - DISKS / 2) * (hq * 1.7f / DISKS),
+      //                 (((i ^ j) & 15) + 1.0f) / DISKS * minq * 0.08f);
+      //    }
+
+      //  // }}
     }
 
     /// <summary>

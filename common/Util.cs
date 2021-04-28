@@ -85,8 +85,10 @@ namespace Utilities
     /// </summary>
     public static T Clamp<T> (T val, T min, T max) where T : IComparable<T>
     {
-      if (val.CompareTo(min) < 0) return min;
-      if (val.CompareTo(max) > 0) return max;
+      if (val.CompareTo(min) < 0)
+        return min;
+      if (val.CompareTo(max) > 0)
+        return max;
       return val;
     }
 
@@ -165,7 +167,8 @@ namespace Utilities
     /// </summary>
     public static bool positiveStrict (string val)
     {
-      if (string.IsNullOrEmpty(val)) return false;
+      if (string.IsNullOrEmpty(val))
+        return false;
 
       val = val.ToLower();
       return val == "1" || val == "yes" || val == "true" || val == "ano";
@@ -535,7 +538,8 @@ namespace Utilities
         return ba;
 
       int i = ba.Count;
-      while (--i >= granularity && !ba[i]) ;
+      while (--i >= granularity && !ba[i])
+        ;
       i = ((i + granularity) / granularity) * granularity;
       ba.Length = i;
 
@@ -1159,7 +1163,8 @@ namespace Utilities
     public static string[] ParseList (string value, char sep = COMMA)
     {
       string[] list = value.Split ( sep );
-      if (list.Length < 1) return null;
+      if (list.Length < 1)
+        return null;
 
       for (int i = 0; i < list.Length; i++)
         list[i] = list[i].Trim();
@@ -1262,9 +1267,9 @@ namespace Utilities
           result.Add(newVal);
         else
           if (string.IsNullOrEmpty(list[i]))
-            result.Add(0);
-          else
-            return null;
+          result.Add(0);
+        else
+          return null;
 
       return result;
     }
@@ -1300,9 +1305,9 @@ namespace Utilities
           result.Add(newVal);
         else
           if (string.IsNullOrEmpty(list[i]))
-            result.Add(0.0f);
-          else
-            return null;
+          result.Add(0.0f);
+        else
+          return null;
 
       return result;
     }
@@ -1338,9 +1343,9 @@ namespace Utilities
           result.Add(newVal);
         else
           if (string.IsNullOrEmpty(list[i]))
-            result.Add(0.0);
-          else
-            return null;
+          result.Add(0.0);
+        else
+          return null;
 
       return result;
     }
@@ -1419,7 +1424,8 @@ namespace Utilities
           continue;
         }
 
-        if (end < 0) end = len;
+        if (end < 0)
+          end = len;
         int eq = str.IndexOf('=', start);
         if (eq != start)
         {
@@ -1785,7 +1791,7 @@ namespace Utilities
       }
       else
         if (!double.TryParse(sval, NumberStyles.Float, CultureInfo.InvariantCulture, out result))
-          return false;
+        return false;
 
       val = pi ? Math.PI * result : result;
       return true;
@@ -1970,7 +1976,8 @@ namespace Utilities
         {
           int len = val.Length;
           int i   = 0;
-          while (i < len && char.IsLetter(val, i)) i++;
+          while (i < len && char.IsLetter(val, i))
+            i++;
           if (i > 0)
             return (i == len) ? val : val.Substring(0, i);
         }
@@ -2104,7 +2111,8 @@ namespace Utilities
           continue;
         }
 
-        if (end < 0) end = len;
+        if (end < 0)
+          end = len;
         int eq = str.IndexOf('=', start);
         if (eq != start)
         {
@@ -2147,7 +2155,8 @@ namespace Utilities
     {
       if (s == null ||
           result == null ||
-          result.Length < 4) return;
+          result.Length < 4)
+        return;
 
       int len = s.Length;
       result[0]++;
@@ -2163,7 +2172,8 @@ namespace Utilities
     {
       if (ss == null ||
           result == null ||
-          result.Length < 4) return;
+          result.Length < 4)
+        return;
 
       foreach (string s in ss)
         StringStat(s, result);
@@ -2171,13 +2181,17 @@ namespace Utilities
 
     public static string kmg (long n)
     {
-      if (n < 8192L) return n.ToString();
+      if (n < 8192L)
+        return n.ToString();
       n >>= 10;
-      if (n < 8192L) return $"{n}K";
+      if (n < 8192L)
+        return $"{n}K";
       n >>= 10;
-      if (n < 8192L) return $"{n}M";
+      if (n < 8192L)
+        return $"{n}M";
       n >>= 10;
-      if (n < 8192L) return $"{n}G";
+      if (n < 8192L)
+        return $"{n}G";
       return $"{n >> 10}T";
     }
 
@@ -2187,7 +2201,8 @@ namespace Utilities
     /// <param name="input">Source string container.</param>
     public static List<string> ListStringInterned (IEnumerable<string> input)
     {
-      if (input == null) return null;
+      if (input == null)
+        return null;
 
       List<string> result = new List<string>();
       foreach (string s in input)
@@ -2367,12 +2382,12 @@ namespace Utilities
     public ETF (in float global = 0.4f, in int intermediateSteps = 2)
     {
       intermediate = Math.Max(0, intermediateSteps);
-      lastTime      = 0.0f;
-      lastTimeI     = intermediate > 0 ? new float[intermediate] : null;
-      lastFinished  = 0.0f;
+      lastTime = 0.0f;
+      lastTimeI = intermediate > 0 ? new float[intermediate] : null;
+      lastFinished = 0.0f;
       lastFinishedI = intermediate > 0 ? new float[intermediate] : null;
-      total         = 0.0f;
-      globalWeight  = Util.Clamp(global, 0.0f, 1.0f);
+      total = 0.0f;
+      globalWeight = Util.Clamp(global, 0.0f, 1.0f);
     }
 
     /// <summary>
@@ -2407,15 +2422,15 @@ namespace Utilities
         lastFinished = lastFinishedI[0];
         for (int i = 0; i < intermediate - 1; i++)
         {
-          lastTimeI[i]     = lastTimeI[i + 1];
+          lastTimeI[i] = lastTimeI[i + 1];
           lastFinishedI[i] = lastFinishedI[i + 1];
         }
-        lastTimeI[intermediate - 1]     = time;
+        lastTimeI[intermediate - 1] = time;
         lastFinishedI[intermediate - 1] = finished;
       }
       else
       {
-        lastTime     = time;
+        lastTime = time;
         lastFinished = finished;
       }
 
@@ -3751,7 +3766,8 @@ namespace Utilities
 
     public override int GetHashCode ()
     {
-      if (data.Count == 0) return 11;
+      if (data.Count == 0)
+        return 11;
 
       if (hash == int.MinValue)
       {

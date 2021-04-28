@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Diagnostics;
+using System.Drawing;
 
 // Support math code.
 namespace MathSupport
@@ -13,8 +13,10 @@ namespace MathSupport
   {
     public static T Clamp<T> (T val, T min, T max) where T : IComparable<T>
     {
-      if (val.CompareTo(min) < 0) return min;
-      if (val.CompareTo(max) > 0) return max;
+      if (val.CompareTo(min) < 0)
+        return min;
+      if (val.CompareTo(max) > 0)
+        return max;
       return val;
     }
 
@@ -117,9 +119,9 @@ namespace MathSupport
       int max = Math.Max(color.R, Math.Max(color.G, color.B));
       int min = Math.Min(color.R, Math.Min(color.G, color.B));
 
-      hue        = color.GetHue();
+      hue = color.GetHue();
       saturation = (max == 0) ? 0.0 : 1.0 - min / (double)max;
-      value      = max / 255.0;
+      value = max / 255.0;
     }
 
     /// <summary>
@@ -267,22 +269,34 @@ namespace MathSupport
       switch (hi)
       {
         case 0:
-          R = v; G = t; B = p;
+          R = v;
+          G = t;
+          B = p;
           break;
         case 1:
-          R = q; G = v; B = p;
+          R = q;
+          G = v;
+          B = p;
           break;
         case 2:
-          R = p; G = v; B = t;
+          R = p;
+          G = v;
+          B = t;
           break;
         case 3:
-          R = p; G = q; B = v;
+          R = p;
+          G = q;
+          B = v;
           break;
         case 4:
-          R = t; G = p; B = v;
+          R = t;
+          G = p;
+          B = v;
           break;
         default:
-          R = v; G = p; B = q;
+          R = v;
+          G = p;
+          B = q;
           break;
       }
     }
@@ -312,22 +326,34 @@ namespace MathSupport
       switch (hi)
       {
         case 0:
-          R = v; G = t; B = p;
+          R = v;
+          G = t;
+          B = p;
           break;
         case 1:
-          R = q; G = v; B = p;
+          R = q;
+          G = v;
+          B = p;
           break;
         case 2:
-          R = p; G = v; B = t;
+          R = p;
+          G = v;
+          B = t;
           break;
         case 3:
-          R = p; G = q; B = v;
+          R = p;
+          G = q;
+          B = v;
           break;
         case 4:
-          R = t; G = p; B = v;
+          R = t;
+          G = p;
+          B = v;
           break;
         default:
-          R = v; G = p; B = q;
+          R = v;
+          G = p;
+          B = q;
           break;
       }
     }
@@ -410,7 +436,7 @@ namespace MathSupport
     public static void RGBeToRGB (byte[] rgbe, int startRgbe, float[] rgb, int startRgb)
     {
       if (rgbe == null || startRgbe + 4 > rgbe.Length ||
-          rgb == null  || startRgb  + 3 > rgb.Length)
+          rgb == null || startRgb + 3 > rgb.Length)
         return;
 
       if (rgbe[startRgbe + 3] == 0)
@@ -420,7 +446,7 @@ namespace MathSupport
       else
       {
         double f = Pow(2.0, rgbe[startRgbe + 3] - 136);
-        rgb[startRgb]     = (float)((rgbe[startRgbe    ] + 0.5) * f);
+        rgb[startRgb] = (float)((rgbe[startRgbe] + 0.5) * f);
         rgb[startRgb + 1] = (float)((rgbe[startRgbe + 1] + 0.5) * f);
         rgb[startRgb + 2] = (float)((rgbe[startRgbe + 2] + 0.5) * f);
       }
@@ -460,7 +486,7 @@ namespace MathSupport
           exp++;
         }
 
-        rgbe[startRgbe]     = (byte)(R * mul);
+        rgbe[startRgbe] = (byte)(R * mul);
         rgbe[startRgbe + 1] = (byte)(G * mul);
         rgbe[startRgbe + 2] = (byte)(B * mul);
         rgbe[startRgbe + 3] = (byte)exp;
@@ -486,7 +512,7 @@ namespace MathSupport
       double ny  = bx - ax;
       double den = nx * dx + ny * dy;
       if (den > -2.0 * double.Epsilon &&
-          den <  2.0 * double.Epsilon)
+          den < 2.0 * double.Epsilon)
         return double.NegativeInfinity;
 
       double t = (nx * (ax - ox) + ny * (ay - oy)) / den;
@@ -543,16 +569,16 @@ namespace MathSupport
     /// <summary>
     /// Any message from computing unit to the GUI main.
     /// </summary>
-    public virtual void Sync ( object msg ) { }
+    public virtual void Sync (object msg) { }
 
     /// <summary>
     /// Set all the harmless values.
     /// </summary>
     public Progress ()
     {
-      Finished     = 0.0f;
-      Message      = "";
-      Continue     = true;
+      Finished = 0.0f;
+      Message = "";
+      Continue = true;
       SyncInterval = 8000L;
     }
   }
@@ -774,7 +800,7 @@ namespace MathSupport
       sQ = Math.Pow(Math.Sqrt(R2 - Q3) + Math.Abs(R), 1.0 / 3.0);
 
       if (R < 0)
-        y[0] =  (sQ + Q / sQ) - an;
+        y[0] = (sQ + Q / sQ) - an;
       else
         y[0] = -(sQ + Q / sQ) - an;
 
@@ -824,9 +850,9 @@ namespace MathSupport
 
       // Compute the cubic resolvant
       c12 = c1 * c1;
-      p   = -0.375 * c12 + c2;
-      q   = 0.125 * c12 * c1 - 0.5 * c1 * c2 + c3;
-      r   = -0.01171875 * c12 * c12 + 0.0625 * c12 * c2 - 0.25 * c1 * c3 + c4;
+      p = -0.375 * c12 + c2;
+      q = 0.125 * c12 * c1 - 0.5 * c1 * c2 + c3;
+      r = -0.01171875 * c12 * c12 + 0.0625 * c12 * c2 - 0.25 * c1 * c3 + c4;
 
       Polynomial cubic = new Polynomial(0.5 * r * p - 0.125 * q * q, -r, -0.5 * p, 1.0);
 
@@ -862,7 +888,7 @@ namespace MathSupport
       // Set up useful values for the quadratic factors
       q1 = d1 * d1;
       q2 = -0.25 * c1;
-      i  = 0;
+      i = 0;
 
       // Solve the first quadratic
       p = q1 - 4.0 * (z - d2);
@@ -873,7 +899,7 @@ namespace MathSupport
       }
       else if (p > 0)
       {
-        p            = Math.Sqrt(p);
+        p = Math.Sqrt(p);
         results[i++] = -0.5 * (d1 + p) + q2;
         results[i++] = -0.5 * (d1 - p) + q2;
       }
@@ -887,7 +913,7 @@ namespace MathSupport
       }
       else if (p > 0)
       {
-        p            = Math.Sqrt(p);
+        p = Math.Sqrt(p);
         results[i++] = 0.5 * (d1 + p) + q2;
         results[i++] = 0.5 * (d1 - p) + q2;
       }
@@ -986,7 +1012,7 @@ namespace MathSupport
 
     public HeapMin ()
     {
-      arr = new List<T> ();
+      arr = new List<T>();
     }
 
     public HeapMin (ICollection<T> c)
@@ -1068,7 +1094,7 @@ namespace MathSupport
   /// Generic Heap data structure with fast GetTop(), RemoveTop(), SwapTop() and Add() operations.
   /// </summary>
   /// <typeparam name="T">Object type to be stored in the heap.</typeparam>
-  public class HeapTop<T>: IEnumerable<T>
+  public class HeapTop<T> : IEnumerable<T>
   {
     protected List<T> arr;
 
@@ -1097,7 +1123,7 @@ namespace MathSupport
 
     public HeapTop (IComparer<T> co = null)
     {
-      arr  = new List<T>();
+      arr = new List<T>();
       Comp = co;
     }
 
@@ -1220,7 +1246,7 @@ namespace MathSupport
     public long[,] table = null;
 
     public SummedAreaTableLong ()
-    {}
+    { }
 
     public SummedAreaTableLong (int xres, int yres)
     {
@@ -1250,9 +1276,9 @@ namespace MathSupport
 
     public long Sum (int x1, int x2, int y1, int y2)
     {
-      Debug.Assert(x1 >= 0  && x1 < table.GetLength(0));
+      Debug.Assert(x1 >= 0 && x1 < table.GetLength(0));
       Debug.Assert(x2 >= x1 && x2 < table.GetLength(0));
-      Debug.Assert(y1 >= 0  && y1 < table.GetLength(1));
+      Debug.Assert(y1 >= 0 && y1 < table.GetLength(1));
       Debug.Assert(y2 >= y1 && y2 < table.GetLength(1));
 
       x1--;
@@ -1274,7 +1300,7 @@ namespace MathSupport
     public int[,] table = null;
 
     public SummedAreaTableInt ()
-    {}
+    { }
 
     public SummedAreaTableInt (int xres, int yres)
     {
@@ -1304,9 +1330,9 @@ namespace MathSupport
 
     public int Sum (int x1, int x2, int y1, int y2)
     {
-      Debug.Assert(x1 >= 0  && x1 < table.GetLength(0));
+      Debug.Assert(x1 >= 0 && x1 < table.GetLength(0));
       Debug.Assert(x2 >= x1 && x2 < table.GetLength(0));
-      Debug.Assert(y1 >= 0  && y1 < table.GetLength(1));
+      Debug.Assert(y1 >= 0 && y1 < table.GetLength(1));
       Debug.Assert(y2 >= y1 && y2 < table.GetLength(1));
 
       x1--;
@@ -1348,9 +1374,9 @@ namespace MathSupport
     public Mitchell2D (SampleGenerator g, int k = 5)
     {
       Generator = g;
-      K         = Math.Max(1, k);
+      K = Math.Max(1, k);
 
-      samples   = new List<PointF>();
+      samples = new List<PointF>();
     }
 
     public void Reset (SampleGenerator g = null, int k = 0)

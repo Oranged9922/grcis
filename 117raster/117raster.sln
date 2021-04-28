@@ -5,6 +5,13 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "117raster", "117raster.csproj", "{1F89D717-B960-4FC5-B032-26DFDD213EF2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{691E5870-ACAC-44C8-BC6A-78D7ED929E01}"
+	ProjectSection(SolutionItems) = preProject
+		Contrast.cs = Contrast.cs
+		ImageTransform.cs = ImageTransform.cs
+		Mandelbrot.cs = Mandelbrot.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

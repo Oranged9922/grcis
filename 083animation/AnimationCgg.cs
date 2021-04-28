@@ -6,15 +6,239 @@ using Utilities;
 
 namespace _083animation
 {
+  public enum AXIS
+  {
+    axisZ,
+    axisY,
+    axisX
+  }
+  public struct Vector
+  {
+    public double x { get; }
+    public double y { get; }
+    public double z { get; }
+
+    public Vector (double x, double y, double z)
+    {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+    }
+
+    public double GetSizeXYZ ()
+    {
+      return Math.Sqrt(x * x + y * y + z * z);
+    }
+    public double GetSizeXY ()
+    {
+      return Math.Sqrt(x * x + y * y);
+    }
+
+    public Vector ScaleXYonly(double multiplier)
+    {
+      return new Vector(this.x * multiplier, this.y * multiplier, z);
+    }
+
+    public Vector ScaleXYZ(double multiplier)
+    {
+      return new Vector(x * multiplier, y * multiplier, z * multiplier/2);
+    }
+
+    public Vector Rotate (AXIS axis, double angle)
+    {
+      switch (axis)
+      {
+        case AXIS.axisZ:
+          double tempX = Math.Cos(angle) * this.x - Math.Sin(angle) * this.y + 0 * this.z;
+          double tempY = Math.Sin(angle) * this.x + Math.Cos(angle) * this.y + 0 * this.z;
+          double tempZ = 0 * this.x + 0 * this.y + 1 * this.y;
+          return new Vector(tempX, tempY, tempZ);
+
+
+          break;
+        case AXIS.axisY:
+          tempX = Math.Cos(angle) * this.x + 0 * this.y + Math.Sin(angle) * this.z;
+          tempY = 0 * this.x + 1 * this.y + 0 * this.z;
+          tempZ = -Math.Sin(angle) * this.x + 0 * this.y + Math.Cos(angle) * this.z;
+          return new Vector(tempX, tempY, tempZ);
+
+          break;
+        case AXIS.axisX:
+          tempX = 1 * this.x + 0 * this.y + 0 * this.z;
+          tempY = 0 * this.x + Math.Cos(angle) * this.y - Math.Sin(angle) * this.z;
+          tempZ = 0 * this.x + Math.Sin(angle) * this.y + Math.Cos(angle) * this.z;
+          return new Vector(tempX, tempY, tempZ);
+
+          break;
+        default:
+          return new Vector(0,0,0);
+          break;
+      }
+    }
+
+   
+  }
+
+
+
+  public class Sphere
+  {
+    public List<Disc> Discs { get; }
+    public Vector Center { get; set; }
+    public double minSizeOfDisc;
+    public double maxSizeOfDisc;
+    double avgSizeOfDisc;
+    double farthest;
+    public double scalar;
+
+    public Sphere(ref List<Disc> D)
+    {
+      this.Discs = D;
+      CalculateMinMaxAvgSizes();
+      Center = GetAvgCenter();
+      GenerateClosestsAndFarthests();
+      GenerateVectorsForDiscs();
+      ScaleVectorsInDiscs();
+      Center = new Vector(0, 0, 0);
+    }
+
+    private void GenerateClosestsAndFarthests ()
+    {
+      Disc closestX = this.Discs[0];
+      Disc closestY = this.Discs[0];
+      Disc farthestX = this.Discs[0];
+      Disc farthestY = this.Discs[0];
+
+      foreach (var d in this.Discs)
+      {
+        if (farthestX.cx < (Center.x - d.cx))
+          farthestX = d;
+        if (farthestY.cy < (Center.y - d.cy))
+          farthestY = d;
+      }
+
+      farthest = Math.Max(farthestX.cx,farthestY.cy);
+    }
+
+    void CalculateMinMaxAvgSizes()
+    {
+      double bestMin = double.MaxValue;
+      double bestMax = double.MinValue;
+
+      foreach (var disc in this.Discs)
+      {
+        if (disc.radius > bestMax)
+          bestMax = disc.radius;
+        if (disc.radius < bestMin)
+          bestMin = disc.radius;
+      }
+
+      minSizeOfDisc = bestMin;
+      maxSizeOfDisc = bestMax;
+      avgSizeOfDisc = (minSizeOfDisc + maxSizeOfDisc) / 2;
+    }
+    Vector GetAvgCenter ()
+    {
+      Disc leftF = this.Discs[0];
+      Disc rightF = this.Discs[0];
+      Disc upF = this.Discs[0];
+      Disc downF = this.Discs[0];
+      foreach (var d in this.Discs)
+      {
+        if (leftF.cx > d.cx)
+          leftF = d;
+        if (rightF.cx < d.cx)
+          rightF = d;
+        if (upF.cy > d.cy)
+          upF = d;
+        if (downF.cy < d.cy)
+          downF = d;
+      }
+      return new Vector((leftF.cx + rightF.cx) / 2, (upF.cy + downF.cy) / 2, 0);
+    }
+    void GenerateVectorsForDiscs ()
+    {
+      foreach (var disc in this.Discs)
+      {
+        disc.coords = new Vector
+          (
+          Map(disc.cx, Center.x - farthest, Center.x + farthest, -1, 1),
+          Map(disc.cy, Center.y - farthest, Center.y + farthest, -1, 1),
+          Map(disc.radius, minSizeOfDisc, maxSizeOfDisc, -1, 1)
+          );
+      }
+    }
+    void ScaleVectorsInDiscs ()
+    {
+
+      double maxDist = 0;
+      // maxDist bude slúžiť na normovanie vektorov, aby sme dostali najväčší (najďalej od stredu) na veľkosť 1, ostatné potom budú v rozsahu 1 až -1 (klasicky 1/norma * vektor)
+
+      foreach (var d in this.Discs)
+      {
+        double potentialMaxDist = d.coords.GetSizeXYZ();
+        if (potentialMaxDist > maxDist)
+          maxDist = potentialMaxDist;
+      }
+
+      foreach(var d in this.Discs)
+      {
+        d.coords = new Vector(d.coords.x / maxDist, d.coords.y / maxDist, d.coords.z / maxDist);
+      }
+
+    }
+
+    public static double Map(double input, double input_start, double input_end, double output_start, double output_end)
+    {
+      return output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);
+    }
+
+
+
+
+
+
+    internal void Display (Canvas c, double time, double start, double end, int size, bool forward, float circMult, double xAngle, double yAngle, double zAngle, bool shrink)
+    {
+      foreach (Disc d in Discs)
+      {
+        double tim = 1 - ((time - start) / (end - start));
+        if (!forward)
+          tim = 1.0 - tim;
+        double spreadCoeff = (1+tim)*(1+tim)*(1+tim);
+        c.SetColor(d.color);
+        Vector v = new Vector(d.coords.x,d.coords.y,d.coords.z).ScaleXYZ(size).Rotate(AXIS.axisX,xAngle*tim).Rotate(AXIS.axisY,yAngle*tim).Rotate(AXIS.axisZ,zAngle*tim);
+        if (shrink)
+        {
+          c.FillDisc(
+            (float)((c.Width / 2) + v.x * spreadCoeff),
+            (float)((c.Height / 2) + v.y * spreadCoeff),
+            (float)(Sphere.Map(d.coords.z, -1, 1, minSizeOfDisc, maxSizeOfDisc) * ((size * circMult) / 80) * spreadCoeff));
+        }
+        else {
+          c.FillDisc(
+            (float)((c.Width / 2) + v.x),
+            (float)((c.Height / 2) + v.y),
+            (float)(Sphere.Map(d.coords.z, -1, 1, minSizeOfDisc, maxSizeOfDisc) * ((size * circMult) / 80)));
+
+        }
+      }
+    }
+  }
+
+
+
   /// <summary>
   /// Solid color disc.
   /// </summary>
+  ///
   public class Disc
   {
     public double cx;
     public double cy;
     public double radius;
     public Color color;
+    public Vector coords;
 
     public Disc (double x, double y, double r, Color c)
     {
@@ -24,7 +248,6 @@ namespace _083animation
       color = c;
     }
   }
-
   public class Animation
   {
     /// <summary>
@@ -208,23 +431,25 @@ namespace _083animation
     protected static double minX, maxX, minY, maxY;
 
     protected static double maxR;
-
+    protected static Sphere s;
     protected static List<Disc> discs;
 
     protected static double kxy;
-
+    protected static double xAngle,yAngle,zAngle = 0;
     protected static double dx, dy;
-
+    protected static bool shrink = false;
     protected static bool forward = true;
-
+    protected static int size = 100;
+    protected static float circMult = 1;
     protected const double SIZE = 0.9;
 
     protected static void SetViewport (int width, int height)
     {
       double k = (width * SIZE) / (maxX - minX);
       kxy = (height * SIZE) / (maxY - minY);
-      if ( k < kxy ) kxy = k;
-      dx = 0.5 * (width -  (minX + maxX) * kxy);
+      if (k < kxy)
+        kxy = k;
+      dx = 0.5 * (width - (minX + maxX) * kxy);
       dy = 0.5 * (height - (minY + maxY) * kxy);
     }
 
@@ -244,20 +469,24 @@ namespace _083animation
     public static void InitParams (out string name, out int wid, out int hei, out double from, out double to, out double fps, out string param, out string tooltip)
     {
       // Author.
-      name = "Josef Pelikán";
+      name = "Lukáš Salak";
 
       // Single frame.
       wid = 640;
-      hei = 480;
+      hei = 640;
 
       // Animation.
       from = 0.0;
-      to   = 2.0;
-      fps  = 25.0;
+      to = 7.5;
+      fps = 60.0;
 
       // Form params.
-      param   = "forward";
-      tooltip = "forward[=<bool>] ... if true, animation creates the logo";
+      param = "forward, size=200, circMult=1, xAngle=7, yAngle=-15, zAngle=-3, shrink=false";
+      tooltip = "forward[=<bool>] ... if true, animation creates the logo\r" +
+                "size[=<int>] ... size of the image (not really worth going above 300 or so)\r" +
+                "circMult[=<float>] ... makes circles bigger or smaller (default 1)\r" +
+                "x/y/zAngle[=<double>] ... sets rotation in that axis (craziness happens above 20)\r" +
+                "shrink[=<bool>] ... sets shrinking (starts big, gets small)";
     }
 
     /// <summary>
@@ -279,29 +508,40 @@ namespace _083animation
       maxX = maxY = maxR = Double.MinValue;
       discs = new List<Disc>();
 
-      for (int i = 0; i < DISC_DATA.Length/3; i++)
+      for (int i = 0; i < DISC_DATA.Length / 3; i++)
       {
         double x = DISC_DATA[i, 0];
         double y = DISC_DATA[i, 1];
         double r = DISC_DATA[i, 2];
         discs.Add(new Disc(x, y, r, i < FIRST_COLOR ? COLORS[0] : COLORS[1]));
-        if (x - r < minX) minX = x - r;
-        if (x + r > maxX) maxX = x + r;
-        if (y - r < minY) minY = y - r;
-        if (y + r > maxY) maxY = y + r;
-        if (r > maxR)     maxR = r;
+        if (x - r < minX)
+          minX = x - r;
+        if (x + r > maxX)
+          maxX = x + r;
+        if (y - r < minY)
+          minY = y - r;
+        if (y + r > maxY)
+          maxY = y + r;
+        if (r > maxR)
+          maxR = r;
       }
 
       SetViewport(width, height);
-
+      s = new Sphere(ref discs);
       // Parse parameters.
       Dictionary<string, string> p = Util.ParseKeyValueList(param);
       if (p.Count > 0)
       {
         // forward[=<bool>]
         Util.TryParse(p, "forward", ref forward);
-      }
 
+        Util.TryParse(p, "size", ref size);
+        Util.TryParse(p, "circMult", ref circMult);
+        Util.TryParse(p, "xAngle", ref xAngle);
+        Util.TryParse(p, "yAngle", ref yAngle);
+        Util.TryParse(p, "zAngle", ref zAngle);
+        Util.TryParse(p, "shrink", ref shrink);
+      }
       // !!!}}
     }
 
@@ -317,20 +557,13 @@ namespace _083animation
     {
       // !!!{{ TODO: put your frame-rendering code here
 
-      c.Clear(Color.White);
+      c.Clear(Color.Black);
       c.SetAntiAlias(true);
 
-      double tim = (time - start) / (end - start);
-      if (!forward)
-        tim = 1.0 - tim;
-      float radius = (float)(maxR * tim);
-
-      foreach (Disc d in discs)
-      {
-        c.SetColor(d.color);
-        float r = (float)(Math.Min(radius, d.radius) * kxy);
-        c.FillDisc(X(d.cx), Y(d.cy), r);
-      }
+      
+      c.SetColor(Color.White);
+      //c.FillDisc(X(s.Center.x), Y(s.Center.y), 220);
+      s.Display(c, time, start, end, size, forward, circMult,xAngle,yAngle,zAngle, shrink);
 
       // !!!}}
     }

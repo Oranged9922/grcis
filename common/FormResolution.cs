@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace GuiSupport
 {
-  public class FormResolution: Form
+  public class FormResolution : Form
   {
     private Label         labelWid,   labelHei;
     private NumericUpDown numericWid, numericHei;
@@ -31,14 +31,14 @@ namespace GuiSupport
 
     public FormResolution (int initWid, int initHei)
     {
-      ImageWidth  = initWid;
+      ImageWidth = initWid;
       ImageHeight = initHei;
       InitializeComponent();
     }
 
     private void buttonOk_Click (object sender, EventArgs e)
     {
-      ImageWidth  = (int)numericWid.Value;
+      ImageWidth = (int)numericWid.Value;
       ImageHeight = (int)numericHei.Value;
       if (ImageWidth * (long)ImageHeight > 500000000L)
         ImageHeight = 500000000 / ImageWidth;

@@ -1,5 +1,5 @@
-﻿using System;
-using OpenTK;
+﻿using OpenTK;
+using System;
 
 // Support math code.
 namespace MathSupport
@@ -126,7 +126,7 @@ namespace MathSupport
         u[ii] = s;
       }
 
-      c  = 362436.0 / 16777216.0;
+      c = 362436.0 / 16777216.0;
       cd = 7654321.0 / 16777216.0;
       cm = 16777213.0 / 16777216.0;
 
@@ -197,15 +197,21 @@ namespace MathSupport
     /// <returns>Number from [0,1).</returns>
     public double UniformNumber ()
     {
-      if (!Ok) return 0.0;
+      if (!Ok)
+        return 0.0;
 
       double uni           = u [i97] - u [j97];
-      if (uni < 0.0) uni  += 1.0;
-      u [i97] = uni;
-      if (--i97 < 0) i97         =  96;
-      if (--j97 < 0) j97         =  96;
-      if ((c -= cd) < 0.0) c    += cm;
-      if ((uni -= c) < 0.0) uni += 1.0;
+      if (uni < 0.0)
+        uni += 1.0;
+      u[i97] = uni;
+      if (--i97 < 0)
+        i97 = 96;
+      if (--j97 < 0)
+        j97 = 96;
+      if ((c -= cd) < 0.0)
+        c += cm;
+      if ((uni -= c) < 0.0)
+        uni += 1.0;
 
       return uni;
     }
@@ -396,8 +402,10 @@ namespace MathSupport
     /// <param name="result">Random 3D (unit) vector.</param>
     public void UniformDirection (double minLat, double maxLat, out Vector3d result)
     {
-      if (minLat < -1.0) minLat = -1.0;
-      if (maxLat > 1.0)  maxLat = 1.0;
+      if (minLat < -1.0)
+        minLat = -1.0;
+      if (maxLat > 1.0)
+        maxLat = 1.0;
       double sinLat             = RandomDouble ( minLat, maxLat );
       double cosLat             = Math.Sqrt ( 1.0 - sinLat * sinLat );
       double longitude          = UniformNumber () * 2.0 * Math.PI;

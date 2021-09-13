@@ -278,7 +278,7 @@ namespace Rendering
 
           double[] vertexColor = new double[3];
           Util.ColorCopy(intersection.SurfaceColor, vertexColor);
-          Master.singleton?.pointCloud?.AddToPointCloud(intersection.CoordWorld, vertexColor, intersection.Normal, MT.threadID);
+          //Master.singleton?.pointCloud?.AddToPointCloud(intersection.CoordWorld, vertexColor, intersection.Normal, MT.threadID);
         }
       }
 

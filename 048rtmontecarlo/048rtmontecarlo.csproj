@@ -109,6 +109,12 @@
     <Compile Include="..\common\WavefrontObj.cs">
       <Link>WavefrontObj.cs</Link>
     </Compile>
+    <Compile Include="AbstractRayRegisterer.cs" />
+    <Compile Include="AdditionalViews.cs" />
+    <Compile Include="BufferedDeflateStream.cs" />
+    <Compile Include="Compression.cs" />
+    <Compile Include="CompressionBasic.cs" />
+    <Compile Include="Construction.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
